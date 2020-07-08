@@ -1,11 +1,8 @@
 #include "kalman_filter.h"
 #include <iostream>
+
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-
-using std::endl;
-
-using std::cout;
 
 /* 
  * Please note that the Eigen library does not initialize 
@@ -50,6 +47,7 @@ void KalmanFilter::Update(const VectorXd &z) {
   x_ = x_ + (K * y);
   long x_size = x_.size();
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  
   P_ = (I - K * H_) * P_;
 }
 
@@ -64,22 +62,22 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float vy = x_(3);
   
   r = atan2(py,px);
-  while ( r > M_PI ) {
-    cout << "r > M_PI" << z(2) << endl;
-  	r -= 2 * M_PI;
-  }
-
-  while ( r <= -M_PI ) {
-    cout << "r <= M_PI" << z(2) << endl;
-  	r += 2 * M_PI;
-  }
+ 
   
   VectorXd z_pred(3);
   z_pred(0) = sqrt(px*px+py*py);
   z_pred(1) = r;
   z_pred(2) = (px*vx+py*vy)/z_pred(0);
   
+  
   VectorXd y = z - z_pred;
+  // In case angle is out of range [-PI:PI]
+  while ( y(1) > M_PI ) {
+  	y(1) -= 2 * M_PI;
+  }
+  while( y(1) <= -M_PI ) {
+  	y(1) += 2 * M_PI;
+  }
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();

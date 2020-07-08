@@ -33,10 +33,14 @@ class FusionEKF {
 
  private:
   // check whether the tracking toolbox was initialized or not (first measurement)
-  bool is_initialized_;
+  bool is_initialized_, use_Radar, use_Laser;
 
   // previous timestamp
   long long previous_timestamp_;
+  
+  //acceleration noise components
+  int noise_ax;
+  int noise_ay;
 
   // tool object used to compute Jacobian and RMSE
   Tools tools;
